@@ -15,8 +15,10 @@ class CreateMilkOutputsTable extends Migration
     {
         Schema::create('milk_outputs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('cow_id')->unsigned();
-            $table->decimal('milk_output')->comment('Will be stored as litres, but will allow conversion from gallon input too');
+            $table->decimal('milk_output')->comment('Will be stored as litres');
+            $table->bigInteger('cow_id')->unsigned()->index()->nullable();
+            $table->foreign('cow_id')->references('id')->on('cows');
+
             $table->timestamps();
         });
     }

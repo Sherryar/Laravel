@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class AdminController extends Controller
 {
     /**
-     * Create a new controller instance.
-     *
-     * @return void
+     * AdminController constructor.
      */
     public function __construct()
     {
@@ -17,12 +15,10 @@ class HomeController extends Controller
     }
 
     /**
-     * Show the application dashboard.
-     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
-        return Auth::check() ? view('/admin/dashboard') : view('home');
+        return Auth::check() ? view('admin.dashboard') : view('/home');
     }
 }

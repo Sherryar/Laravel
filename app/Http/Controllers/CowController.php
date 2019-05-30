@@ -6,6 +6,8 @@ use App\Cow;
 use App\Http\Resources\CowResource;
 use App\MilkOutput;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent;
+use Illuminate\Support\Facades\DB;
 
 class CowController extends Controller
 {
@@ -31,11 +33,11 @@ class CowController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        //
+        return CowResource::collection(Cow::latest()->paginate(5));
     }
 
     /**
@@ -51,35 +53,32 @@ class CowController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return CowResource
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
         $this->validate($request, [
             'name' => 'required|max:50',
-            'milk_output' => 'required|numeric|between:0,49.99',
         ]);
 
-//        $cow = new Cow;
-//        $milkOutput = new MilkOutput;
-//
-//        $cow->name = $request->name;
-//        $milkOutput->milk_output = $request->milk_output;
-//        $cow->milkOutputs()->associate($cow)->save();
-//        $cow->save();
+        $cow = new Cow;
+        $cow->name = $request->name;
+        $cow->save();
 
+        return new CowResource($cow);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Cow  $cow
-     * @return \Illuminate\Http\Response
+     * @param Cow $cow
+     * @return CowResource
      */
     public function show(Cow $cow)
     {
-        //
+        return new CowResource($cow);
     }
 
     /**
@@ -96,23 +95,42 @@ class CowController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Cow  $cow
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Cow $cow
+     * @return CowResource
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, Cow $cow)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|max:50',
+        ]);
+
+        $cow->update($request->only(['name']));
+
+//        $milkOutputs = $cow->milkOutputs()->get();
+//
+//        if (count($milkOutputs)) {
+//            foreach($milkOutputs as $milkOutput) {
+//                $milkOutput->update($request->only('milk_output', 'cow_id'));
+//            }
+//        }
+
+        return new CowResource($cow);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Cow  $cow
-     * @return \Illuminate\Http\Response
+     * @param Cow $cow
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function destroy(Cow $cow)
     {
-        //
+        $cow->milkOutputs()->delete();
+        $cow->delete();
+
+        return response()->json('null', 204);
     }
 }
